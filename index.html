@@ -52,7 +52,9 @@
 
 	<h2>Algorithm</h2>
    <p>
-      //Algorith here
+      The current vertex position of each particle is passed to the collision detection algorithm, along with their initial velocities and allocated memory for storing the resulting velocities. These data are passed in SOA form. The algorithm checks the distance of each particle to every other particle to determine if a collision has occured with the particle that is being checked. This results in an O(N^2) operations. The algorithm also checks if the particle has reached the limits of a bounding box, and in such a case, the particle rebounds off the plane.
+
+      If a collision has occured, the resulting velocity is calculated and stored in the resulting velocity array. If a collision has not occured with a particle, its initial velocity is saved in the resulting velocity array.
    </p>
 
 </div>
@@ -85,7 +87,7 @@
 <div class="section" id="vectorization">
    <h2>Vectorization</h2>
    <p>
-      //Vectorization here
+      We tested each vectoriaztion pragma to determine which would give us the most speedup. We found that our plugin runs fastest when #pragma simd is used. We were surprised by this result because the opt report showed that all of our data had unalighed access. SIMD had about a 3x speedup over novector when collisions between 100,000 particles were being checked. We found that vectorization of smaller sample sizes had an insigificant affect.
    </p>
 </div>
 
@@ -104,7 +106,7 @@
 
    <h2>What We Wish We Could Have Done</h2>
    <p>
-      //Algorith here
+      If we had more time to work on this plugin, we would have liked to arrange our data so that we had aligned access, refined the collision detection algorithm for more accurate collision responses, utilized the Retain and Reuse functionality of offloading, test our speedup with the use of 2 Xeon Phi cards, and implementated the changin color functionality of particles when they collide.
    </p>
 
 </div>
