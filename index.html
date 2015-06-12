@@ -19,7 +19,7 @@
 </head>
 <body>
 
-<div id="sidebar">
+<div id="sidebar" style="overflow-y:auto">
 	<h2 class="logo">Maya Particle System: Sphere Collisions</h2>
 	<center class="author">Authors: <br>Brandon Clark<br>Mitch Lane<br /></center>
 
@@ -38,9 +38,15 @@
 <div class="section" id="overview">
 	<h2>Introduction</h2>
 	<center>
-		<a href="thumb.jpg" rel="lightbox[complex]"><img src="thumb.jpg" alt="image 1 0f 6 thumb"/></a>
+		<img src="images/front.jpg" alt="image 1 0f 6 thumb" height="200px"/>
 	</center>
-	//Put intro here
+	<p>
+		This Maya plugin gives users the ability to have bounding sphere collision 
+		detection within large, Maya Particle Systems. Each particle is given a randomized 
+		set velocity at the beginning of the plugin. The collisions occur within a NxN 
+		bounding box (cube). We decided to solve this problem using threading, vectorization, 
+		and offloading because the high amount of floating point operations and the pure nature of the algorithm is vastly intensive. From the results and details below, we succeeded in optimizing this problem getting as high as a 7x speedup.
+	</p>
 </div>
 <hr />
 
