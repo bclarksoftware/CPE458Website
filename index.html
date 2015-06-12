@@ -40,7 +40,7 @@
 	<center>
 		<img src="images/front.jpg" alt="image 1 0f 6 thumb" height="200px"/>
 	</center>
-	<p> 
+	<p>
 		This Maya plugin gives users the ability to have bounding sphere collision 
 		detection within large, Maya Particle Systems. Each particle is given a randomized 
 		set velocity at the beginning of the plugin. The collisions occur within a NxN 
@@ -64,17 +64,46 @@
 
    <h3>Maya API</h3>
    <p>
-      //Maya API here
+      We decided to implement our plugin in Maya using Maya's Particle System.
+      To do this, our class inherited from the MPxCommand; however, this had some 
+      unexpected side effects. One of the major side effects we spent a lot of time 
+      fixing was getting Maya to keep calling our "doIt" function per frame. Inheritely, 
+      Maya only calls a MPxCommand once because typically commands are only done once 
+      and then undone or redone otherwise. We overcomed this problem by using the 
+      mel command:<br>
+      <center><i>"expression -string "COMMAND_NAME"</i></center>
+      <br>This solved our problem, but the new side effect of this was that Maya 
+      would now create new instances of our class per frame! We finally just dealt 
+      with this side effect and made sure we initialized our velocities in unique 
+      situations (e.g. when the velocities are <0.0, 0.0, 0.0> for instance).
+
    </p>
 
    <h3>Threading</h3>
    <p>
-      //threading here
+      Threading collision detection is as simple as putting #pragma parallels around 
+      the for loop region. We did not encounter many race conditions; however, if 
+      we decided to have pure collision detection, we would have a race condition if 
+      three or more spheres collided at once.<br>One race condition we did have for 
+      awhile was when we tried to update two spheres on one pass of the outer for loop 
+      region of our algorithm. For instance:<br>
+      <center><i>"for (int i = 0; i < numSpheres; ++i) {<br>
+           for (int j = 0; j < numSpheres; ++j) { ...."</i></center>
+
+     	If we updated every instance in the inner for loop, other threads would be 
+     	racing to update that same information. This is a typical race condition. 
+     	We fixed this by only updating the out for loop iteration since it would 
+     	only be done once.
    </p>
 
    <h3>Vectorization</h3>
    <p>
-      We tested each vectoriaztion pragma to determine which would give us the most speedup. We found that our plugin runs fastest when #pragma simd is used. We were surprised by this result because the opt report showed that all of our data had unalighed access. SIMD had about a 3x speedup over novector when collisions between 100,000 particles were being checked. We found that vectorization of smaller sample sizes had an insigificant affect.
+      We tested each vectoriaztion pragma to determine which would give us the most speedup. We found that our plugin runs fastest when #pragma simd is used. We were surprised by this result because the opt report showed that all of our data had unalighed access. SIMD had about a 3x speedup over novector when collisions between 100,000 particles were being checked. We found that vectorization of smaller sample sizes had an insigificant affect.<br>
+      Furthermore, we included the use of <i>"__builtin_expect"</i> for when a sphere would 
+      collide with the cube walls. We deemed this a rare case to hit the outer walls since 
+      there is a larger area of movement within the cube. By expecting the sphere to be 
+      within the inner part of the cube, we allowed the compiler to optimize our code for 
+      the better.
    </p>
 </div>
 <hr />
@@ -83,60 +112,48 @@
 
    <h2>Problems Encountered</h2>
    <p>
-      //Algorith here
+      <ul>
+      	<li>Maya API - Specifically getting the particle system to work correctly.</li>
+      	<li>Vectorization - Unaligned data by nature of the algorithm</li>
+      	<li>Collision Detection - Working around maya positions</li>
+      	<li>Reusing Data - Difficult because Maya does too much work.</li>
+      </ul>
    </p>
 </div>
 <hr />
 
 <div class="section" id="future">
-
    <h2>What We Wish We Could Have Done</h2>
    <p>
-      If we had more time to work on this plugin, we would have liked to arrange our data so that we had aligned access, refined the collision detection algorithm for more accurate collision responses, utilized the Retain and Reuse functionality of offloading, test our speedup with the use of 2 Xeon Phi cards, and implementated the changin color functionality of particles when they collide.
+      If we had more time to work on this plugin, we would have liked to arrange our data so that we had aligned access, refined the collision detection algorithm for more accurate collision responses, utilized the Retain and Reuse functionality of offloading, test our speedup with the use of 2 Xeon Phi cards, and implementated the changing color functionality of particles when they collide.
    </p>
-
 </div>
 
 <hr />
 
 <div class="section" id="images">
-	<h2>Gallery</h2>
+	<h2>Gallery / Videos</h2>
 
-	<h3>The World</h3>
+	<h3>Thumbnails</h3>
 	<div class="imageRow">
 		<div class="set">
 			<div class="single first">
-				<a href="thumb.jpg" rel="lightbox[complex]"><img src="thumb.jpg" alt="image 1 0f 6 thumb" style="max-width:130px;"/></a>
+				<a href="images/thumb.png" rel="lightbox[complex]"><img src="images/thumb.png" alt="image 1 0f 6 thumb" style="max-width:130px;"/></a>
 			</div>
 			<div class="single">
-				<a href="thumb1.jpg" rel="lightbox[complex]" ><img src="thumb1.jpg" alt="image 2 0f 6 thumb" style="max-width:130px;"/></a>
+				<a href="images/thumb1.png" rel="lightbox[complex]" ><img src="images/thumb1.png" alt="image 2 0f 6 thumb" style="max-width:130px;"/></a>
 			</div>
 			<div class="single">
-				<a href="thumb2.jpg" rel="lightbox[complex]" ><img src="thumb2.jpg" alt="image 3 0f 6 thumb" style="max-width:130px;"/></a>
-			</div>
-			<div class="single">
-				<a href="thumb3.jpg" rel="lightbox[complex]" ><img src="thumb3.jpg" alt="image 4 0f 6 thumb" style="max-width:130px;"/></a>
-			</div>
-			<div class="single">
-				<a href="thumb4.jpg" rel="lightbox[complex]" ><img src="thumb4.jpg" alt="image 5 0f 6 thumb" style="max-width:130px;"/></a>
-			</div>
-			<div class="single last">
-				<a href="thumb5.jpg" rel="lightbox[complex]"><img src="thumb5.jpg" alt="image 6 0f 6 thumb" style="max-width:130px;"/></a>
+				<a href="images/thumb2.png" rel="lightbox[complex]" ><img src="images/thumb2.png" alt="image 3 0f 6 thumb" style="max-width:130px;"/></a>
 			</div>
 		</div>
 	</div>
 
-	<h3>Objects</h3>
+	<h3>Videos</h3>
 	<div class="imageRow">
 		<div class="set">
 			<div class="single first">
-				<a href="hover.jpg" rel="lightbox[complex]" title="Hovercraft"><img src="hover.jpg" alt="image 1 0f 3 thumb" style="min-width:130px;"/></a>
-			</div>
-			<div class="single">
-				<a href="rock.jpg" rel="lightbox[complex]" title="The Rock" ><img src="rock.jpg" alt="image 2 0f 3 thumb" style="min-width:130px;"/></a>
-			</div>
-			<div class="single last">
-				<a href="tree.jpg" rel="lightbox[complex]" title="The Tree" alt="image 3 0f 3 thumb" /><img src="tree.jpg" alt="image 2 of 3 thumb" style="max-width:130px;"/></a>
+				<iframe width="560" height="315" src="https://www.youtube.com/embed/jU9N9E-I_F0" frameborder="0" allowfullscreen></iframe>
 			</div>
 		</div>
 	</div>
@@ -146,14 +163,10 @@
 
 <div class="section" id="references">
 	<h2>References</h2>
-	<h3>Heightmap</h3>
-		<ul>
-			<li><a href="http://www.codeproject.com/Articles/14154/OpenGL-Terrain-Generation-An-Introduction">OpenGL Terrain Generation - An Introduction</a> - Vahe Karamian</li>
-		</ul>
-	<h3>Objects</h3>
-		<ul>
-			<li><a href="http://www.turbosquid.com/">TurboSquid - Object Resources</li>
-		</ul>
+	<ul>
+		<li><a href="http://download.autodesk.com/global/docs/mayasdk2012/en_us/index.html?url=files/Technical_Notes_Threading_and_Maya_API.htm,topicNumber=d28e16075">Maya API</a> (and probably many other sources) </li>
+		<li><a href="http://studiofreya.com/3d-math-and-physics/simple-sphere-sphere-collision-detection-and-collision-response/">Collision Detection Algorithm (1)</a></li>
+	</ul>
 
 </div>
 <hr />
